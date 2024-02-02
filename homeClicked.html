@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>부동부동 - 블록체인 기반 부동산 거래</title>
+    <link rel="shortcut icon" href="./real_estate.ico" />
+    <!--naver 지도-->
+    <script
+      type="text/javascript"
+      src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=r0nh0ibqvm"
+    ></script>
+    <!-- CDN방식 참조 -------------------------------------- -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- -------------------------------------------------- -->
+    <style>
+      #logo {
+        margin-top: 1px;
+      }
+      div.head {
+        display: inline-block;
+      }
+      #search {
+        position: absolute;
+        width: 200px;
+        display: inline-block;
+        right: 150px;
+      }
+      #input_search {
+        width: 200px;
+        border: 1px solid #bbb;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+
+      #img_search {
+        position: absolute;
+        width: 17px;
+        top: 10px;
+        right: -20px;
+        margin: 0;
+      }
+      #profile {
+        position: absolute;
+        top: 11px;
+        right: 85px;
+        width: 30px;
+      }
+      #login {
+        position: absolute;
+        padding: 4px 10px;
+        display: inline-block;
+        top: 11px;
+        right: 10px;
+      }
+      a {
+        text-decoration-line: none;
+      }
+      .menu {
+        padding: 0px 4%;
+        color: gray;
+      }
+      .menu:active {
+        text-decoration-line: underline;
+      }
+      .container {
+        padding: 10px 0px 0px 0px;
+        display: inline-flex;
+        /* width: 100%; */
+      }
+      .explanation {
+        display: fixed;
+        min-width: 350px;
+        margin: 0px 30px;
+      }
+      .home_img {
+        width: 100%;
+        min-width: 500px;
+        padding: 10px 0px 0px 0px;
+        text-align: center;
+      }
+      .home_link {
+        padding: 0px 0px 0px 10px;
+        text-align: center;
+        font-size: 13.5px;
+      }
+      table {
+        font-size: 12px;
+      }
+      .category {
+        background-color: rgba(240, 240, 240, 0.4);
+      }
+      .footer {
+        text-align: center;
+      }
+      #blockchain {
+        height: 20em;
+      }
+      /* 로그인 팝업창 */
+      /* 팝업 스타일 */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        text-align: center;
+      }
+
+      /* 팝업 내부 스타일 */
+      .popup h2 {
+        color: #333;
+      }
+
+      .popup form {
+        margin-top: 20px;
+      }
+
+      .popup label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+      }
+
+      .popup input {
+        width: 80%;
+        padding: 10px;
+        margin-bottom: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .popup input[type='submit'] {
+        background-color: #6a24fe;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      /* 배경 오버레이 스타일 */
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 900;
+      }
+      /* 버튼 컨테이너 스타일 */
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+      /* 버튼 스타일 */
+      button:not(#login) {
+        flex: 1; /* 동일한 너비 지정 */
+        padding: 10px;
+        margin-right: 8px; /* 버튼 사이 간격 조절 */
+        background-color: #6a24fe;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <header>
+        <div class="head">
+          <a href="index.html"
+            ><img src="./logo.png" title="logo" id="logo" width="120px"
+          /></a>
+        </div>
+        <div class="head" id="search">
+          <input id="input_search" type="text" placeholder="검색어 입력" />
+          <img
+            id="img_search"
+            src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png"
+          />
+        </div>
+        <div class="head">
+          <img src="./profile.png" alt="profile" id="profile" />
+        </div>
+        <a href="#"
+          ><button id="login" onclick="openLoginPopup()">로그인</button></a
+        >
+      </header>
+      <hr class="horizon" color="gray" />
+      <a href="index.html" class="menu">부동산</a>
+      <a href="#" class="menu">매물</a>
+      <a href="#" class="menu">분양</a>
+      <a href="#" class="menu">경매</a>
+      <a href="https://apply.lh.or.kr/lhapply/apply/main.do" class="menu"
+        >청약</a
+      >
+
+      <hr class="horizon" color="gray" />
+      <div class="container">
+        <div class="home">
+          <a href="#"><img class="home_img" src="./home1.png" alt="home1" /></a>
+        </div>
+        <div class="explanation">
+          <h2>송파푸르지오아파트 1단지</h2>
+          <p>70세대/총 1동/2021.11.18/91.39㎡ ~ 99.36㎡</p>
+          <h4>단지 정보</h4>
+          <table>
+            <tr>
+              <td class="category">세대수</td>
+              <td>70세대(총 1개동)</td>
+              <td class="category">저/최고층</td>
+              <td>5층/21층</td>
+            </tr>
+            <tr>
+              <td class="category">사용승인일</td>
+              <td>2021년 10월 23일</td>
+              <td class="category">총주차대수</td>
+              <td>144대(세대당 2.05대)</td>
+            </tr>
+            <tr>
+              <td class="category">용적률</td>
+              <td>185%</td>
+              <td class="category">건폐율</td>
+              <td>52%</td>
+            </tr>
+            <tr>
+              <td class="category">건설사</td>
+              <td colspan="3">대우건설(주)</td>
+            </tr>
+            <tr>
+              <td class="category">난방</td>
+              <td colspan="3">중앙난방, 도시가스</td>
+            </tr>
+            <tr>
+              <td class="category">관리사무소</td>
+              <td colspan="3">02-2142-0100</td>
+            </tr>
+            <tr>
+              <td class="category">주소</td>
+              <td colspan="3">
+                서울시 송파구 신천동 7-18<br />[도로명] 서울시 송파구 올림픽로
+                269
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer">
+        <a href="#"
+          ><img id="blockchain" src="./blockchain.png" alt="logo_2"
+        /></a>
+      </div>
+    </div>
+    <!-- wrap -->
+
+    <!-- 로그인 팝업 -->
+    <div id="loginPopup" class="popup">
+      <h2>Login</h2>
+      <!-- 로그인 폼 -->
+      <form>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="ID"
+          required
+        />
+
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
+        <div class="button-container">
+          <button type="submit">로그인</button>
+          <button onclick="closeLoginPopup()">닫기</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 배경 오버레이 -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- javaScript -->
+    <script id="code">
+      //로그인 팝업창
+      function openLoginPopup() {
+        document.getElementById('loginPopup').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+      }
+
+      function closeLoginPopup() {
+        document.getElementById('loginPopup').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
